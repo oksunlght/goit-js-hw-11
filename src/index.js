@@ -31,8 +31,8 @@ function onSearch(e) {
 function onLoadMore() {
   imagesApiService
     .fetchImages()
-    .then(({ hits }) => {
-      if (hits.length < 40) {
+    .then(({ totalHits, hits }) => {
+      if (hits.length < 40 || imagesApiService.hits >= totalHits) {
         Notiflix.Notify.info(
           'We are sorry, but you have reached the end of search results.'
         );

@@ -26,6 +26,7 @@ export default class ImagesApiService {
     this.searchQuery = '';
     this.page = 1;
     this.baseUrl = 'https://pixabay.com/api/';
+    this.hits = 0;
   }
 
   async fetchImages() {
@@ -66,6 +67,7 @@ export default class ImagesApiService {
         })
         .then(({ totalHits, hits }) => {
           this.incrementPage();
+          this.incrementHits();
           return { totalHits, hits };
         });
     } catch (error) {
@@ -82,14 +84,14 @@ export default class ImagesApiService {
     Notiflix.Notify.success(`Hooray! We found ${number} images`);
   }
 
-  onError() {
-    Notiflix.Notify.failure(
-      'Sorry, there are no images matching your search query. Please try again.'
-    );
-  }
-
   resetPage() {
     this.page = 1;
+  }
+
+  incrementHits() {
+    this.hits += 40;
+    console.log(this.hits);
+    return this.hits;
   }
 
   get query() {

@@ -11,6 +11,8 @@ const refs = {
   onLoadMoreBtn: document.querySelector('.load-more'),
 };
 
+let lightbox = null;
+
 hideLoadMoreBtn();
 
 refs.onSearchForm.addEventListener('submit', onSearch);
@@ -32,15 +34,23 @@ function onLoadMore() {
   imagesApiService
     .fetchImages()
     .then(({ totalHits, hits }) => {
-      if (hits.length < 40 || imagesApiService.hits >= totalHits) {
+      const remainedImages = totalHits - imagesApiService.totalHits;
+
+      if (remainedImages < 40) {
+        imagesApiService.perPage = remainedImages;
+      }
+      renderMarkup(hits);
+      lightbox.refresh();
+
+      if (remainedImages === 0) {
         Notiflix.Notify.info(
           'We are sorry, but you have reached the end of search results.'
         );
         hideLoadMoreBtn();
+        imagesApiService.resetHits();
+        imagesApiService.resetPerPage();
         return;
       }
-
-      renderMarkup(hits);
     })
     .catch(error => console.log(error.message));
 }
@@ -61,6 +71,7 @@ function onFetch() {
 
       imagesApiService.showSuccess(totalHits);
       renderMarkup(hits);
+      lightbox = new SimpleLightbox('.gallery a');
       showLoadMoreBtn();
     })
     .catch(error => {
@@ -103,9 +114,6 @@ function renderMarkup(images) {
     .join('');
 
   refs.gallery.insertAdjacentHTML('beforeend', markup);
-
-  let gallery = new SimpleLightbox('.gallery a');
-  gallery.show.simplelightbox;
 }
 
 function clearGalleryContainer() {

@@ -26,7 +26,8 @@ export default class ImagesApiService {
     this.searchQuery = '';
     this.page = 1;
     this.baseUrl = 'https://pixabay.com/api/';
-    this.hits = 0;
+    this.totalHits = 0;
+    this.perPage = 40;
   }
 
   async fetchImages() {
@@ -59,7 +60,7 @@ export default class ImagesApiService {
             orientation: 'horizontal',
             safesearch: true,
             page: `${this.page}`,
-            per_page: 40,
+            per_page: `${this.perPage}`,
           },
         })
         .then(response => {
@@ -67,7 +68,7 @@ export default class ImagesApiService {
         })
         .then(({ totalHits, hits }) => {
           this.incrementPage();
-          this.incrementHits();
+          this.incrementHits({ hits });
           return { totalHits, hits };
         });
     } catch (error) {
@@ -80,6 +81,10 @@ export default class ImagesApiService {
     this.page += 1;
   }
 
+  incrementHits({ hits }) {
+    this.totalHits += hits.length;
+  }
+
   showSuccess(number) {
     Notiflix.Notify.success(`Hooray! We found ${number} images`);
   }
@@ -88,10 +93,12 @@ export default class ImagesApiService {
     this.page = 1;
   }
 
-  incrementHits() {
-    this.hits += 40;
-    console.log(this.hits);
-    return this.hits;
+  resetHits() {
+    this.totalHits = 0;
+  }
+
+  resetPerPage() {
+    this.perPage = 40;
   }
 
   get query() {
